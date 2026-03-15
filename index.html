@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intro to Git</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --accent: #58a6ff;
+    --accent-hover: #79c0ff;
+    --green: #3fb950;
+    --orange: #d29922;
+    --red: #f85149;
+    --purple: #bc8cff;
+    --code-bg: #1c2128;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    padding: 80px 20px 60px;
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a1e2e 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 30% 50%, rgba(88, 166, 255, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 70% 50%, rgba(188, 140, 255, 0.04) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  header h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+    position: relative;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  header p {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  /* Nav */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13, 17, 23, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+  }
+
+  nav ul {
+    display: flex;
+    list-style: none;
+    max-width: 900px;
+    margin: 0 auto;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  nav ul::-webkit-scrollbar { display: none; }
+
+  nav a {
+    display: block;
+    padding: 14px 18px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  nav a:hover, nav a.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* Main */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px 100px;
+  }
+
+  /* Sections */
+  section {
+    margin-bottom: 60px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  section h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  section h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 28px 0 12px;
+    color: var(--accent);
+  }
+
+  p, li {
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+  ul { padding-left: 24px; margin-bottom: 16px; }
+  li { margin-bottom: 6px; }
+  strong { color: var(--text); }
+
+  /* Code blocks */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    margin: 12px 0 20px;
+    position: relative;
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  pre code {
+    color: var(--text);
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  }
+
+  /* Inline code */
+  code {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    background: var(--code-bg);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 0.88em;
+    color: var(--orange);
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text);
+  }
+
+  /* Copy button */
+  .code-block {
+    position: relative;
+  }
+
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, background 0.2s, color 0.2s;
+  }
+
+  .code-block:hover .copy-btn { opacity: 1; }
+  .copy-btn:hover { background: var(--border); color: var(--text); }
+  .copy-btn.copied { color: var(--green); }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 12px 0 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+  }
+
+  th {
+    text-align: left;
+    padding: 12px 16px;
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(88, 166, 255, 0.04); }
+
+  td code {
+    color: var(--accent);
+    background: rgba(88, 166, 255, 0.1);
+  }
+
+  /* Workflow diagram */
+  .workflow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 30px 0;
+    flex-wrap: wrap;
+  }
+
+  .workflow-step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 24px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text);
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+
+  .workflow-step:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 4px 20px rgba(88, 166, 255, 0.15);
+  }
+
+  .workflow-arrow {
+    font-size: 1.4rem;
+    color: var(--text-muted);
+    padding: 0 8px;
+  }
+
+  /* Accordion for troubleshooting */
+  .accordion {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .accordion-header {
+    width: 100%;
+    background: var(--surface);
+    border: none;
+    color: var(--text);
+    padding: 16px 20px;
+    text-align: left;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s;
+    font-family: inherit;
+  }
+
+  .accordion-header:hover { background: #1c2128; }
+
+  .accordion-chevron {
+    transition: transform 0.3s;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .accordion.open .accordion-chevron { transform: rotate(180deg); }
+
+  .accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .accordion-content {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.92rem;
+  }
+
+  .accordion-content code {
+    color: var(--green);
+    background: rgba(63, 185, 80, 0.1);
+  }
+
+  /* Steps */
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 20px;
+    transition: border-color 0.2s;
+  }
+
+  .step:hover { border-color: var(--accent); }
+
+  .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: rgba(88, 166, 255, 0.15);
+    color: var(--accent);
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+  }
+
+  .step h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  /* OS tabs */
+  .os-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 4px;
+    width: fit-content;
+  }
+
+  .os-tab {
+    padding: 6px 16px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background 0.2s, color 0.2s;
+    font-family: inherit;
+  }
+
+  .os-tab.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .os-tab:hover:not(.active) { color: var(--text); }
+
+  .os-content { display: none; }
+  .os-content.active { display: block; }
+
+  /* Tip bar */
+  .tip {
+    background: rgba(88, 166, 255, 0.08);
+    border-left: 3px solid var(--accent);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 20px 0;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+  }
+
+  .tip strong { color: var(--accent); }
+
+  /* Search */
+  .search-wrap {
+    position: relative;
+    margin-bottom: 30px;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    padding: 14px 20px 14px 46px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 1rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-wrap input::placeholder { color: var(--text-muted); }
+  .search-wrap input:focus { border-color: var(--accent); }
+
+  .search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 1rem;
+  }
+
+  .search-results {
+    margin-top: 12px;
+  }
+
+  .search-result {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .search-result:hover { border-color: var(--accent); }
+
+  .search-result .cmd { color: var(--accent); font-weight: 600; }
+  .search-result .desc { color: var(--text-muted); font-size: 0.88rem; }
+
+  .hidden { display: none !important; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    header h1 { font-size: 2.2rem; }
+    header { padding: 50px 16px 40px; }
+    nav a { padding: 12px 14px; font-size: 0.82rem; }
+    .workflow { gap: 0; }
+    .workflow-step { padding: 12px 16px; font-size: 0.85rem; }
+    .workflow-arrow { padding: 0 4px; font-size: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Intro to Git</h1>
+  <p>Everything you need to get started with Git and GitHub. Watch the video, check out the infographic, then use this as your cheat sheet.</p>
+</header>
+
+<nav>
+  <ul>
+    <li><a href="#setup" class="active">Setup</a></li>
+    <li><a href="#workflow">Workflow</a></li>
+    <li><a href="#commands">Commands</a></li>
+    <li><a href="#example">Example</a></li>
+    <li><a href="#troubleshooting">Troubleshooting</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<!-- COMMAND SEARCH -->
+<div class="search-wrap">
+  <span class="search-icon">&#128269;</span>
+  <input type="text" id="cmd-search" placeholder="Search commands... (e.g. branch, push, commit)">
+  <div class="search-results" id="search-results"></div>
+</div>
+
+<!-- SETUP -->
+<section id="setup">
+  <h2>First-Time Setup</h2>
+  <p>You only do this stuff once.</p>
+
+  <div class="step">
+    <div class="step-number">1</div>
+    <h3>Install Git</h3>
+    <div class="os-tabs" data-group="install">
+      <button class="os-tab active" data-os="windows">Windows</button>
+      <button class="os-tab" data-os="mac">Mac</button>
+      <button class="os-tab" data-os="linux">Linux</button>
+    </div>
+    <div class="os-content active" data-os="windows" data-group="install">
+      <p>Download from <a href="https://git-scm.com/downloads" target="_blank">git-scm.com/downloads</a> and use the defaults in the installer.</p>
+    </div>
+    <div class="os-content" data-os="mac" data-group="install">
+      <p>Open Terminal and type <code>git --version</code> &mdash; it'll prompt you to install it.</p>
+    </div>
+    <div class="os-content" data-os="linux" data-group="install">
+      <div class="code-block">
+        <pre><code>sudo apt install git       # Ubuntu/Debian
+sudo dnf install git       # Fedora</code></pre>
+        <button class="copy-btn" aria-label="Copy">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">2</div>
+    <h3>Tell Git Who You Are</h3>
+    <div class="code-block">
+      <pre><code>git config --global user.name "Your Name"
+git config --global user.email "you@example.com"</code></pre>
+      <button class="copy-btn" aria-label="Copy">Copy</button>
+    </div>
+    <p>Use the same email as your GitHub account.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">3</div>
+    <h3>Set Up SSH</h3>
+    <p>So you don't type your password every time. Generate a key:</p>
+    <div class="code-block">
+      <pre><code>ssh-keygen -t ed25519 -C "you@example.com"</code></pre>
+      <button class="copy-btn" aria-label="Copy">Copy</button>
+    </div>
+    <p>Hit Enter through all the prompts. Then copy the key:</p>
+
+    <div class="os-tabs" data-group="ssh">
+      <button class="os-tab active" data-os="windows">Windows</button>
+      <button class="os-tab" data-os="mac">Mac</button>
+      <button class="os-tab" data-os="linux">Linux</button>
+    </div>
+    <div class="os-content active" data-os="windows" data-group="ssh">
+      <div class="code-block">
+        <pre><code>cat ~/.ssh/id_ed25519.pub | clip</code></pre>
+        <button class="copy-btn" aria-label="Copy">Copy</button>
+      </div>
+    </div>
+    <div class="os-content" data-os="mac" data-group="ssh">
+      <div class="code-block">
+        <pre><code>cat ~/.ssh/id_ed25519.pub | pbcopy</code></pre>
+        <button class="copy-btn" aria-label="Copy">Copy</button>
+      </div>
+    </div>
+    <div class="os-content" data-os="linux" data-group="ssh">
+      <div class="code-block">
+        <pre><code>cat ~/.ssh/id_ed25519.pub</code></pre>
+        <button class="copy-btn" aria-label="Copy">Copy</button>
+      </div>
+      <p>Copy the output manually.</p>
+    </div>
+
+    <p>Then go to <strong>GitHub &rarr; Settings &rarr; SSH and GPG Keys &rarr; New SSH Key</strong>, paste it in, and save.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-number">4</div>
+    <h3>Test the Connection</h3>
+    <div class="code-block">
+      <pre><code>ssh -T git@github.com</code></pre>
+      <button class="copy-btn" aria-label="Copy">Copy</button>
+    </div>
+    <p>You should see: <code>Hi username! You've successfully authenticated...</code></p>
+    <div class="tip"><strong>Tip:</strong> You're good to go!</div>
+  </div>
+</section>
+
+<!-- WORKFLOW -->
+<section id="workflow">
+  <h2>The Main Loop</h2>
+  <p>This is what you'll do every day. Get this down and you're 90% of the way there.</p>
+
+  <div class="workflow">
+    <div class="workflow-step">Edit files</div>
+    <span class="workflow-arrow">&rarr;</span>
+    <div class="workflow-step">git add</div>
+    <span class="workflow-arrow">&rarr;</span>
+    <div class="workflow-step">git commit</div>
+    <span class="workflow-arrow">&rarr;</span>
+    <div class="workflow-step">git push</div>
+  </div>
+</section>
+
+<!-- COMMANDS -->
+<section id="commands">
+  <h2>Essential Commands</h2>
+
+  <h3>Starting a Project</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Command</th><th>What It Does</th></tr></thead>
+      <tbody>
+        <tr><td><code>git init</code></td><td>Create a new repo in the current folder</td></tr>
+        <tr><td><code>git clone &lt;url&gt;</code></td><td>Download an existing repo from GitHub</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Day-to-Day Workflow</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Command</th><th>What It Does</th></tr></thead>
+      <tbody>
+        <tr><td><code>git status</code></td><td>See what's changed</td></tr>
+        <tr><td><code>git add &lt;file&gt;</code></td><td>Stage a specific file for commit</td></tr>
+        <tr><td><code>git add .</code></td><td>Stage everything</td></tr>
+        <tr><td><code>git commit -m "message"</code></td><td>Save your staged changes with a description</td></tr>
+        <tr><td><code>git diff</code></td><td>See your unstaged changes line-by-line</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Branching</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Command</th><th>What It Does</th></tr></thead>
+      <tbody>
+        <tr><td><code>git branch</code></td><td>List your branches</td></tr>
+        <tr><td><code>git branch &lt;name&gt;</code></td><td>Create a new branch</td></tr>
+        <tr><td><code>git checkout &lt;branch&gt;</code></td><td>Switch to a branch</td></tr>
+        <tr><td><code>git checkout -b &lt;name&gt;</code></td><td>Create and switch in one step</td></tr>
+        <tr><td><code>git merge &lt;branch&gt;</code></td><td>Merge another branch into your current one</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Working with GitHub (Remotes)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Command</th><th>What It Does</th></tr></thead>
+      <tbody>
+        <tr><td><code>git remote add origin &lt;url&gt;</code></td><td>Link your local repo to GitHub</td></tr>
+        <tr><td><code>git push</code></td><td>Upload your commits</td></tr>
+        <tr><td><code>git pull</code></td><td>Download and merge the latest changes</td></tr>
+        <tr><td><code>git fetch</code></td><td>Download changes without merging</td></tr>
+        <tr><td><code>git remote -v</code></td><td>See your linked remotes</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>History &amp; Undoing Mistakes</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Command</th><th>What It Does</th></tr></thead>
+      <tbody>
+        <tr><td><code>git log</code></td><td>View commit history</td></tr>
+        <tr><td><code>git log --oneline</code></td><td>Compact commit history</td></tr>
+        <tr><td><code>git restore &lt;file&gt;</code></td><td>Discard uncommitted changes to a file</td></tr>
+        <tr><td><code>git reset HEAD &lt;file&gt;</code></td><td>Unstage a file</td></tr>
+        <tr><td><code>git branch -a</code></td><td>See all branches (local and remote)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- EXAMPLE -->
+<section id="example">
+  <h2>Quick Example: Your First Repo</h2>
+  <div class="code-block">
+    <pre><code><span style="color: var(--text-muted)"># make a folder and go into it</span>
+mkdir my-project
+cd my-project
+
+<span style="color: var(--text-muted)"># start a repo</span>
+git init
+
+<span style="color: var(--text-muted)"># make a file</span>
+echo "hello world" > hello.txt
+
+<span style="color: var(--text-muted)"># stage it, commit it, push it</span>
+git add hello.txt
+git commit -m "first commit"
+git remote add origin git@github.com:yourusername/my-project.git
+git push -u origin main</code></pre>
+    <button class="copy-btn" aria-label="Copy">Copy</button>
+  </div>
+  <p>That's it. You just put code on the internet.</p>
+</section>
+
+<!-- TROUBLESHOOTING -->
+<section id="troubleshooting">
+  <h2>When Things Go Wrong</h2>
+
+  <div class="accordion">
+    <button class="accordion-header">
+      "I committed the wrong thing"
+      <span class="accordion-chevron">&#9660;</span>
+    </button>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        <code>git reset HEAD~1</code> undoes the last commit but keeps your files.
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion">
+    <button class="accordion-header">
+      "I want to start over on this file"
+      <span class="accordion-chevron">&#9660;</span>
+    </button>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        <code>git restore &lt;file&gt;</code> throws away your changes.
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion">
+    <button class="accordion-header">
+      "I'm on the wrong branch"
+      <span class="accordion-chevron">&#9660;</span>
+    </button>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        <code>git stash</code> your work, switch branches, then <code>git stash pop</code>.
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion">
+    <button class="accordion-header">
+      "Merge conflict"
+      <span class="accordion-chevron">&#9660;</span>
+    </button>
+    <div class="accordion-body">
+      <div class="accordion-content">
+        Open the file, look for the <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code> markers, pick what you want to keep, then add and commit.
+      </div>
+    </div>
+  </div>
+
+  <div class="tip" style="margin-top: 24px;">
+    <strong>Tip:</strong> If you get stuck, <code>git status</code> is your best friend. It always tells you what's going on and usually suggests what to do next.
+  </div>
+</section>
+
+</main>
+
+<script>
+  // --- Command search data ---
+  const commands = [
+    { cmd: 'git init', desc: 'Create a new repo in the current folder', section: 'commands' },
+    { cmd: 'git clone <url>', desc: 'Download an existing repo from GitHub', section: 'commands' },
+    { cmd: 'git status', desc: "See what's changed", section: 'commands' },
+    { cmd: 'git add <file>', desc: 'Stage a specific file for commit', section: 'commands' },
+    { cmd: 'git add .', desc: 'Stage everything', section: 'commands' },
+    { cmd: 'git commit -m "message"', desc: 'Save your staged changes with a description', section: 'commands' },
+    { cmd: 'git diff', desc: 'See your unstaged changes line-by-line', section: 'commands' },
+    { cmd: 'git branch', desc: 'List your branches', section: 'commands' },
+    { cmd: 'git branch <name>', desc: 'Create a new branch', section: 'commands' },
+    { cmd: 'git checkout <branch>', desc: 'Switch to a branch', section: 'commands' },
+    { cmd: 'git checkout -b <name>', desc: 'Create and switch in one step', section: 'commands' },
+    { cmd: 'git merge <branch>', desc: 'Merge another branch into your current one', section: 'commands' },
+    { cmd: 'git remote add origin <url>', desc: 'Link your local repo to GitHub', section: 'commands' },
+    { cmd: 'git push', desc: 'Upload your commits', section: 'commands' },
+    { cmd: 'git pull', desc: 'Download and merge the latest changes', section: 'commands' },
+    { cmd: 'git fetch', desc: 'Download changes without merging', section: 'commands' },
+    { cmd: 'git remote -v', desc: 'See your linked remotes', section: 'commands' },
+    { cmd: 'git log', desc: 'View commit history', section: 'commands' },
+    { cmd: 'git log --oneline', desc: 'Compact commit history', section: 'commands' },
+    { cmd: 'git restore <file>', desc: 'Discard uncommitted changes to a file', section: 'commands' },
+    { cmd: 'git reset HEAD <file>', desc: 'Unstage a file', section: 'commands' },
+    { cmd: 'git branch -a', desc: 'See all branches (local and remote)', section: 'commands' },
+    { cmd: 'git reset HEAD~1', desc: 'Undo the last commit but keep your files', section: 'troubleshooting' },
+    { cmd: 'git stash', desc: 'Temporarily shelve changes', section: 'troubleshooting' },
+    { cmd: 'git stash pop', desc: 'Restore stashed changes', section: 'troubleshooting' },
+    { cmd: 'git config --global user.name', desc: 'Set your Git username', section: 'setup' },
+    { cmd: 'git config --global user.email', desc: 'Set your Git email', section: 'setup' },
+    { cmd: 'ssh-keygen -t ed25519', desc: 'Generate an SSH key', section: 'setup' },
+    { cmd: 'ssh -T git@github.com', desc: 'Test your SSH connection to GitHub', section: 'setup' },
+  ];
+
+  const searchInput = document.getElementById('cmd-search');
+  const searchResults = document.getElementById('search-results');
+
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.toLowerCase().trim();
+    searchResults.innerHTML = '';
+    if (!q) return;
+
+    const matches = commands.filter(c =>
+      c.cmd.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q)
+    );
+
+    matches.forEach(m => {
+      const div = document.createElement('div');
+      div.className = 'search-result';
+      div.innerHTML = `<span class="cmd">${m.cmd}</span><br><span class="desc">${m.desc}</span>`;
+      div.addEventListener('click', () => {
+        document.getElementById(m.section).scrollIntoView({ behavior: 'smooth' });
+      });
+      searchResults.appendChild(div);
+    });
+  });
+
+  // --- Copy buttons ---
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const code = btn.closest('.code-block').querySelector('code').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+  });
+
+  // --- OS tabs ---
+  document.querySelectorAll('.os-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const group = tab.closest('.os-tabs').dataset.group;
+      const os = tab.dataset.os;
+
+      // Update tabs in this group
+      tab.closest('.os-tabs').querySelectorAll('.os-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      // Update content in this group
+      const step = tab.closest('.step');
+      step.querySelectorAll(`.os-content[data-group="${group}"]`).forEach(c => {
+        c.classList.toggle('active', c.dataset.os === os);
+      });
+    });
+  });
+
+  // --- Accordion ---
+  document.querySelectorAll('.accordion-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const acc = header.parentElement;
+      const body = acc.querySelector('.accordion-body');
+      const isOpen = acc.classList.contains('open');
+
+      // Close all
+      document.querySelectorAll('.accordion').forEach(a => {
+        a.classList.remove('open');
+        a.querySelector('.accordion-body').style.maxHeight = null;
+      });
+
+      // Toggle current
+      if (!isOpen) {
+        acc.classList.add('open');
+        body.style.maxHeight = body.scrollHeight + 'px';
+      }
+    });
+  });
+
+  // --- Sticky nav active state ---
+  const navLinks = document.querySelectorAll('nav a');
+  const sections = document.querySelectorAll('section');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+
+  // Smooth scroll for nav
+  navLinks.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(link.getAttribute('href'));
+      target.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  // --- Fade-in on scroll ---
+  const fadeObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.animationDelay = '0.1s';
+        entry.target.style.animationPlayState = 'running';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  sections.forEach(s => {
+    s.style.animationPlayState = 'paused';
+    fadeObserver.observe(s);
+  });
+</script>
+
+</body>
+</html>
